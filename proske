@@ -1,0 +1,129 @@
+import os
+from telethon import TelegramClient, events
+
+# --- КОНФИГУРАЦИЯ ЮЗЕРБОТА ---
+# Получи API ID и API Hash с сайта my.telegram.org
+API_ID = int(os.environ.get('TG_API_ID', '28184012'))       # <--- ЗАМЕНИ НА СВОЙ API ID (целое число)
+API_HASH = os.environ.get('TG_API_HASH', 'edd9af23901da78929589cffd8d4e41e')   # <--- ЗАМЕНИ НА СВОЙ API HASH (строка)
+
+# Номер телефона твоего Telegram аккаунта (в международном формате, например, '+79001234567')
+# Будет запрошен при первом запуске, если не указан здесь
+PHONE_NUMBER = os.environ.get('79171766188', '') # Опционально. Можно оставить пустым.
+
+# ID целевого пользователя, на чьи сообщения будет отвечать юзербот.
+# Узнать ID можно через бота @userinfobot или просмотреть в Telethon-сессии.
+# Можно также использовать юзернейм (без @)
+TARGET_USER_ID_OR_USERNAME = os.environ.get('TG_TARGET_USER', '@c0mplimente') # <--- ЗАМЕНИ. Пример: 123456789 или 'username'
+
+# Текст ответа, который юзербот будет отправлять
+REPLY_TEXT = os.environ.get('TG_REPLY_TEXT', "провокации 
+
+чо отцу в член? 
+
+чо с хуя хочешь сказать? 
+
+язык биологической матери нравится? 
+
+пенисом в рот тебе давали хочешь сказать? 
+
+с этой провокацией тебя в рот ебали? с дика в рот с рта в очко? 
+
+с помощью залупы отца нравилось долбится в рот?
+
+волосатое очко своё хочешь показать моему члены? 
+
+с пениса вкусовые сосочки на языке освежил? с хуем во рту ответь
+
+с провокациями хотел хуя? 
+
+чо в рожу мёртвого отца? 
+
+с хуя пизданулся? 
+
+с хуя проебался, с хуя сказал, с хуя ушёл, с хуя в рот взял, с хуя закончил свою жизнь? 
+
+с пениса высказался пенисом во рту закончил? 
+
+пиздой матери наелся очко бати захотел? 
+
+отчима боялся поэтому хуй вспомнил? 
+
+с помощью моего хуя увидел своё детство решил  напомнить? 
+
+с пениса в рожу спермы с рожи в рот? 
+
+чо ебарю в пенис? 
+
+биологической матери в пизду? 
+
+языком мёртвой матери об хуй? 
+
+театральный фестиваль отсасывание хуя? 
+
+цирк клоун плюс мой хуй в рот тебе, -  пиздой в залупу мою? 
+
+мать тебе ебали скончалась она - запел про язык своей биологической матери? 
+
+матери в пизду с пизды батюшке в тюрягу? - с тюрягу на мой хуй, с хуя ебали в рот человека с ником [его ник] сдох со света того мямлил прямо как пизда затерявшийся сестрёнки? 
+
+отцу гею в жопу,с жопы на завод с завода на хуй [свой ник] 
+
+с рта оппонента в хуй [ свой ник ] - с хуя оппонента в пизду матери 
+
+с твоей провокации ты в член
+с члена в пизду матери
+с пизды матери в рот хуй
+с хуя во рту на свалку
+со свалки в рот спермы
+со ртом спермы в ад
+с ада в рабство") # <--- ЗАМЕНИ НА СВОЙ ТЕКСТ ОТВЕТА
+
+# --- ИНИЦИАЛИЗАЦИЯ КЛИЕНТА ---
+# 'session_name' - имя файла сессии, который будет создан для хранения авторизации
+client = TelegramClient('userbot_session', API_ID, API_HASH)
+
+# --- ОБРАБОТЧИК СООБЩЕНИЙ ---
+@client.on(events.NewMessage(incoming=True, func=lambda e: e.is_private or e.is_group or e.is_channel))
+async def handler(event):
+    """
+    Обрабатывает новые входящие сообщения.
+    """
+    # Если TARGET_USER_ID_OR_USERNAME - это числовой ID
+    if isinstance(TARGET_USER_ID_OR_USERNAME, int) or TARGET_USER_ID_OR_USERNAME.isdigit():
+        target_id = int(TARGET_USER_ID_OR_USERNAME)
+        # Проверяем, что сообщение пришло от целевого пользователя
+        if event.sender_id == target_id:
+            print(f"Получено сообщение от целевого пользователя {event.sender_id}: {event.text}")
+            await event.reply(REPLY_TEXT)
+            print(f"Ответил пользователю {event.sender_id}: {REPLY_TEXT}")
+    # Если TARGET_USER_ID_OR_USERNAME - это юзернейм
+    elif isinstance(TARGET_USER_ID_OR_USERNAME, str) and TARGET_USER_ID_OR_USERNAME.startswith('@'):
+        target_username = TARGET_USER_ID_OR_USERNAME[1:] # Убираем '@'
+        sender_entity = await event.get_sender()
+        if sender_entity and sender_entity.username == target_username:
+            print(f"Получено сообщение от целевого пользователя @{sender_entity.username}: {event.text}")
+            await event.reply(REPLY_TEXT)
+            print(f"Ответил пользователю @{sender_entity.username}: {REPLY_TEXT}")
+    elif isinstance(TARGET_USER_ID_OR_USERNAME, str): # Без @, если просто username
+        target_username = TARGET_USER_ID_OR_USERNAME
+        sender_entity = await event.get_sender()
+        if sender_entity and sender_entity.username == target_username:
+            print(f"Получено сообщение от целевого пользователя @{sender_entity.username}: {event.text}")
+            await event.reply(REPLY_TEXT)
+            print(f"Ответил пользователю @{sender_entity.username}: {REPLY_TEXT}")
+    else:
+        print(f"Получено сообщение от {event.sender_id}, но это не целевой пользователь. (ID: {TARGET_USER_ID_OR_USERNAME})")
+
+# --- ЗАПУСК ЮЗЕРБОТА ---
+async def main():
+    print("Юзербот запущен. Ожидание сообщений...")
+    if PHONE_NUMBER:
+        await client.start(phone=PHONE_NUMBER)
+    else:
+        await client.start() # Запросит номер телефона при первом запуске
+
+    await client.run_until_disconnected()
+
+if __name__ == '__main__':
+    with client:
+        client.loop.run_until_complete(main())
